@@ -1,0 +1,80 @@
+name: OpenWrt_360T7
+on: 
+  repository_dispatch:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Maximize build space
+      uses: easimon/maximize-build-space@master
+      with:
+        root-reserve-mb: 4096
+        swap-size-mb: 1024
+        remove-dotnet: 'false'
+        remove-android: 'true'
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+    - name: Init Building Dependencies
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        sudo -E apt-get update -y
+        sudo -E apt-get full-upgrade -y
+        sudo apt install -y ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 ccache clang clangd cmake cpio curl device-tree-compiler ecj fastjar flex gawk gettext gcc-multilib g++-multilib git gperf haveged help2man intltool lib32gcc-s1 libc6-dev-i386 libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5 libncursesw5-dev libreadline-dev libssl-dev libtool lld lldb lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 python3-pip python3-ply python-docutils qemu-utils re2c rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
+        sudo -E bash -c 'bash <(curl -s https://build-scripts.immortalwrt.eu.org/init_build_environment.sh)'
+        sudo -E swapoff -a
+        sudo -E rm -rf /usr/share/dotnet /etc/mysql /etc/php /usr/local/lib/android /opt/ghc /swapfile
+    - name: Clone Source
+      run: |
+        cd "/home/runner"
+        git clone --branch "openwrt-21.02" --single-branch "https://github.com/jerryhan77/immortalwrt-mt798x" "openwrt"
+        sudo chown -R runner:runner "openwrt"
+        cd "/home/runner/openwrt"
+        ./scripts/feeds update -a
+        ./scripts/feeds install -a
+    - name: Build OpenWrt
+      run: |
+        cd "/home/runner/openwrt"
+        cp -f "defconfig/mt7981-360t7.config" ".config"
+        make defconfig
+        make -j$[$(nproc)+1]
+        
+    - name: Moving Files
+      run: |
+        cd "/home/runner/openwrt"
+        mv -f bin ..
+    
+    - name: Prepare Release Zip File
+      id: assemble_artifact
+      run: |
+        cd "/home/runner"
+        zip -rq immortalwrt-mt798x.zip bin
+        release_tag="360T7-$(date +%Y-%m-%d)"
+        echo "##[set-output name=release_tag;]$release_tag"
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.assemble_artifact.outputs.release_tag }}
+        release_name: OpenWrt ${{ steps.assemble_artifact.outputs.release_tag }}
+        draft: false
+        prerelease: false
+    - name: Upload Release Asset
+      id: upload-release-asset 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: /home/runner/immortalwrt-mt798x.zip
+        asset_name: immortalwrt-mt798x.zip
+        asset_content_type: application/zip
+    - name : Upload Artifact
+      uses: actions/upload-artifact@master
+      with:
+        name: OpenWrt(Download This or Go to Release Page)
+        path: /home/runner/immortalwrt-mt798x.zip
