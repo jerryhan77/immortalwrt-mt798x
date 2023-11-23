@@ -385,3 +385,92 @@ define Device/xiaomi_redmi-router-ax6000-stock
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
 endef
 TARGET_DEVICES += xiaomi_redmi-router-ax6000-stock
+
+define Device/BPI-R3MINI-NAND
+  DEVICE_VENDOR := Banana Pi
+  DEVICE_MODEL := Banana Pi R3MINI
+  DEVICE_TITLE := MTK7986a BPI R3MINI NAND
+  DEVICE_DTS := mt7986a-bananapi-bpi-r3mini-nand
+  DEVICE_DTS_DIR := $(DTS_DIR)/mediatek
+  DEVICE_PACKAGES := kmod-phy-air-en8811h bpir3_mini-properties
+  SUPPORTED_DEVICES := bananapi,bpi-r3mini
+  UBINIZE_OPTS := -E 5
+  BLOCKSIZE := 128k
+  PAGESIZE := 2048
+  IMAGE_SIZE := 65536k
+  KERNEL_IN_UBI := 1
+  IMAGES += factory.bin
+  IMAGE/factory.bin := append-ubi | check-size $$$$(IMAGE_SIZE)
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+endef
+TARGET_DEVICES += BPI-R3MINI-NAND
+
+define Device/BPI-R3MINI-EMMC
+  DEVICE_VENDOR := Banana Pi
+  DEVICE_MODEL := Banana Pi R3MINI
+  DEVICE_TITLE := MTK7986a BPI R3MINI EMMC
+  DEVICE_DTS := mt7986a-bananapi-bpi-r3mini-emmc
+  DEVICE_DTS_DIR := $(DTS_DIR)/mediatek
+  DEVICE_PACKAGES := kmod-phy-air-en8811h bpir3_mini-properties \
+  	automount blkid blockdev f2fsck fdisk losetup mkf2fs f2fs-tools \
+        kmod-fs-f2fs kmod-mmc kmod-nls-cp437 kmod-nls-iso8859-1
+  SUPPORTED_DEVICES := bananapi,bpi-r3mini-emmc
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+endef
+TARGET_DEVICES += BPI-R3MINI-EMMC
+
+define Device/netcore_n60
+   DEVICE_VENDOR := Netcore
+   DEVICE_MODEL := N60
+   DEVICE_DTS := mt7986a-netcore-n60
+  DEVICE_DTS_DIR := $(DTS_DIR)/mediatek
+  SUPPORTED_DEVICES := netcore,n60
+  UBINIZE_OPTS := -E 5
+  BLOCKSIZE := 128k
+  PAGESIZE := 2048
+  KERNEL_IN_UBI := 1
+  IMAGES += factory.bin
+  IMAGE/factory.bin := append-ubi | check-size $$$$(IMAGE_SIZE)
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+endef
+TARGET_DEVICES += netcore_n60
+
+define Device/glinet_gl-mt6000
+   DEVICE_VENDOR := GL.iNet
+   DEVICE_MODEL := GL-MT6000
+   DEVICE_DTS := mt7986a-glinet-gl-mt6000
+   DEVICE_DTS_DIR := $(DTS_DIR)/mediatek
+   DEVICE_PACKAGES := automount blkid blockdev f2fsck fdisk losetup mkf2fs \
+         kmod-fs-f2fs kmod-mmc kmod-nls-cp437 kmod-nls-iso8859-1 kmod-usb3 \
+         e2fsprogs kmod-fs-ext4 kmod-fs-vfat
+   IMAGES += factory.bin
+   IMAGE/factory.bin := append-kernel | pad-to 32M | append-rootfs
+   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+endef
+TARGET_DEVICES += glinet_gl-mt6000
+ 
+define Device/tplink_tl-common
+    DEVICE_VENDOR := TP-Link
+    DEVICE_DTS_DIR := $(DTS_DIR)/mediatek
+    DEVICE_PACKAGES := automount blkid blockdev f2fsck fdisk losetup mkf2fs \
+         kmod-fs-f2fs  kmod-nls-cp437 kmod-nls-iso8859-1 kmod-usb3
+    UBINIZE_OPTS := -E 5
+    BLOCKSIZE := 128k
+    PAGESIZE := 2048
+    KERNEL_IN_UBI := 1
+    IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+ endef
+
+define Device/tplink_tl-xdr6086
+    DEVICE_MODEL := TL-XDR6086
+    DEVICE_DTS := mt7986a-tl-xdr6086
+    $(call Device/tplink_tl-common)
+endef
+TARGET_DEVICES += tplink_tl-xdr6086
+
+define Device/tplink_tl-xdr6088
+    DEVICE_MODEL := TL-XDR6088
+    DEVICE_DTS := mt7986a-tl-xdr6088
+    $(call Device/tplink_tl-common)
+endef
+TARGET_DEVICES += tplink_tl-xdr6088

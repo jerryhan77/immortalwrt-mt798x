@@ -303,6 +303,35 @@ define Device/xiaomi_mi-router-wr30u-112m
 endef
 TARGET_DEVICES += xiaomi_mi-router-wr30u-112m
 
+define Device/xiaomi_mi-router-ax3000t-stock
+  DEVICE_VENDOR := Xiaomi
+  DEVICE_MODEL := Mi Router AX3000T (stock layout)
+  DEVICE_DTS := mt7981-xiaomi-mi-router-ax3000t-stock
+  DEVICE_DTS_DIR := $(DTS_DIR)/mediatek
+  UBINIZE_OPTS := -E 5
+  BLOCKSIZE := 128k
+  PAGESIZE := 2048
+  IMAGE_SIZE := 34816k
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+endef
+TARGET_DEVICES += xiaomi_mi-router-ax3000t-stock
+
+define Device/xiaomi_mi-router-ax3000t
+  DEVICE_VENDOR := Xiaomi
+  DEVICE_MODEL := Mi Router AX3000T
+  DEVICE_DTS := mt7981-xiaomi-mi-router-ax3000t
+  DEVICE_DTS_DIR := $(DTS_DIR)/mediatek
+  UBINIZE_OPTS := -E 5
+  BLOCKSIZE := 128k
+  PAGESIZE := 2048
+  IMAGE_SIZE := 114688k
+  KERNEL_IN_UBI := 1
+  IMAGES += factory.bin
+  IMAGE/factory.ubi := append-ubi | check-size $$$$(IMAGE_SIZE)
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+endef
+TARGET_DEVICES += xiaomi_mi-router-ax3000t
+
 define Device/glinet_gl-mt3000
   DEVICE_VENDOR := GL.iNet
   DEVICE_MODEL := GL-MT3000
@@ -521,3 +550,20 @@ define Device/nradio_wt9103
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
 endef
 TARGET_DEVICES += nradio_wt9103
+
+define Device/nradio_wt9103_512m
+  DEVICE_VENDOR := NRADIO
+  DEVICE_MODEL := WT9103 (with 512M Flash)
+  DEVICE_DTS := mt7981-nradio-wt9103-512m
+  DEVICE_DTS_DIR := $(DTS_DIR)/mediatek
+  SUPPORTED_DEVICES := nradio,wt9103
+  UBINIZE_OPTS := -E 5
+  BLOCKSIZE := 128k
+  PAGESIZE := 2048
+  IMAGE_SIZE := 131072k
+  KERNEL_IN_UBI := 1
+  IMAGES += factory.bin
+  IMAGE/factory.bin := append-ubi | check-size $$$$(IMAGE_SIZE)
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+endef
+TARGET_DEVICES += nradio_wt9103_512m
