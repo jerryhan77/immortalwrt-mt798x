@@ -42,7 +42,7 @@ EXPORT_SYMBOL(ppe_dev_register_hook);
 void (*ppe_dev_unregister_hook)(struct net_device *dev) = NULL;
 EXPORT_SYMBOL(ppe_dev_unregister_hook);
 
-static int ppe_cnt = 1;
+static int ppe_cnt = 2;
 module_param(ppe_cnt, int, 0);
 
 static void hnat_sma_build_entry(struct timer_list *t)
@@ -733,6 +733,9 @@ static int hnat_probe(struct platform_device *pdev)
 	}
 
 	hnat_priv->ppe_num = ppe_cnt;
+
+	if (IS_GMAC1_MODE)
+		hnat_priv->ppe_num = 1;
 
 	dev_info(&pdev->dev, "ppe num = %d\n", hnat_priv->ppe_num);
 
